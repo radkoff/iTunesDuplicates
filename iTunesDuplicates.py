@@ -72,7 +72,7 @@ def compareTracks(trackA, trackB):
 		return 0
 
 tracks = []		# Maintains a list of tracks as they are parsed
-cutoff = 70		# If comparison scores fall below this threashold, don't report them as duplicates
+cutoff = 90		# If comparison scores fall below this threashold, don't report them as duplicates
 inTracks = False	# While parsing, this is set to true when within the "tracks" portion of the XML document
 dictStack = 0 		# When <dict> is seen, increment. When </dict> is seen, decrement.
 trackInfo = [] 		# Throughout parsing, this stores the XML information for the current track

@@ -1,0 +1,60 @@
+(lp0
+S'\t\t<dict>'
+p1
+aS'\t\t\t<key>Track ID</key><integer>12985</integer>'
+p2
+aS'\t\t\t<key>Name</key><string>Float On</string>'
+p3
+aS'\t\t\t<key>Artist</key><string>Modest Mouse</string>'
+p4
+aS'\t\t\t<key>Album</key><string>Float On-(CDS)</string>'
+p5
+aS'\t\t\t<key>Genre</key><string>131</string>'
+p6
+aS'\t\t\t<key>Kind</key><string>MPEG audio file</string>'
+p7
+aS'\t\t\t<key>Size</key><integer>6044694</integer>'
+p8
+aS'\t\t\t<key>Total Time</key><integer>209580</integer>'
+p9
+aS'\t\t\t<key>Track Number</key><integer>1</integer>'
+p10
+aS'\t\t\t<key>Year</key><integer>2004</integer>'
+p11
+aS'\t\t\t<key>Date Modified</key><date>2008-12-13T22:58:59Z</date>'
+p12
+aS'\t\t\t<key>Date Added</key><date>2006-12-19T21:36:14Z</date>'
+p13
+aS'\t\t\t<key>Bit Rate</key><integer>230</integer>'
+p14
+aS'\t\t\t<key>Sample Rate</key><integer>44100</integer>'
+p15
+aS'\t\t\t<key>Comments</key><string>#chr [Efnet] cp</string>'
+p16
+aS'\t\t\t<key>Play Count</key><integer>88</integer>'
+p17
+aS'\t\t\t<key>Play Date</key><integer>3432405739</integer>'
+p18
+aS'\t\t\t<key>Play Date UTC</key><date>2012-10-07T03:02:19Z</date>'
+p19
+aS'\t\t\t<key>Skip Count</key><integer>12</integer>'
+p20
+aS'\t\t\t<key>Skip Date</key><date>2013-03-11T06:50:29Z</date>'
+p21
+aS'\t\t\t<key>Rating</key><integer>100</integer>'
+p22
+aS'\t\t\t<key>Album Rating</key><integer>100</integer>'
+p23
+aS'\t\t\t<key>Album Rating Computed</key><true/>'
+p24
+aS'\t\t\t<key>Persistent ID</key><string>096B07CC32793212</string>'
+p25
+aS'\t\t\t<key>Track Type</key><string>File</string>'
+p26
+aS'\t\t\t<key>Location</key><string>file://localhost/Users/evan/Music/iTunes/Muusic/Modest%20Mouse/Float%20On-(CDS)/01%20Float%20On.mp3</string>'
+p27
+aS'\t\t\t<key>File Folder Count</key><integer>4</integer>'
+p28
+aS'\t\t\t<key>Library Folder Count</key><integer>1</integer>'
+p29
+a.
