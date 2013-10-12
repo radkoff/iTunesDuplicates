@@ -51,7 +51,7 @@ aS'\t\t\t<key>Persistent ID</key><string>096B07CC32793212</string>'
 p25
 aS'\t\t\t<key>Track Type</key><string>File</string>'
 p26
-aS'\t\t\t<key>Location</key><string>data/01%20Float%20On.mp3</string>'
+aS'\t\t\t<key>Location</key><string> *@#(*';lk342<> //\tkfd </string>'
 p27
 aS'\t\t\t<key>File Folder Count</key><integer>4</integer>'
 p28

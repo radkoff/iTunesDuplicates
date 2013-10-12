@@ -15,7 +15,7 @@ aS'\t\t\t<key>Kind</key><string>MPEG audio file</string>'
 p7
 aS'\t\t\t<key>Size</key><integer>6044694</integer>'
 p8
-aS'\t\t\t<key>Total Time</key><integer>209580</integer>'
+aS'\t\t\t<key>Total Time</key><integer>0</integer>'
 p9
 aS'\t\t\t<key>Track Number</key><integer>1</integer>'
 p10

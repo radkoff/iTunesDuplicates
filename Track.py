@@ -13,7 +13,8 @@ considered for duplicate-checking if not present (making self.valid==False)
 	Name - Track's title, not required.
 	Artist - Track's artist, not required.
 	Album - Track's album, not required.
-	Time - An int of the total time of the track rounded to the nearest second (required)
+	Total Time - An int of the total time of the track rounded to the nearest second (required)
+	Location - URL of the media file
 It also maintians these self variables:
 	valid
  	fileHash - MD5 hash checksum of the file contents (required)
@@ -26,17 +27,19 @@ class Track:
 		self.valid = True	# Potentially set to false by several functions, indicates the track is unfit for matching
 		
 		self.readXML(XMLdata)
+		if 'Location' not in self.tags:
+			self.valid = False
 		# Convert the Total Time tag from a string of milliseconds to a rounded int of seconds
-		if 'Total Time' in self.tags:
+		if 'Total Time' in self.tags and self.tags['Total Time'] != '0':
 			self.tags['Total Time'] = self.convertTime(self.tags['Total Time'])
 		else:	# If it's absent, the Track isn't valid
 			self.valid = False
 
-		# Store a local UNIX file path to the media instead of an HTML location
-		self.filePath = self.convertURLtoPath(self.tags['Location'])
 		if self.valid:
+			# Store a local UNIX file path to the media instead of an HTML location
+			self.filePath = self.convertURLtoPath(self.tags['Location'])
 			# If the file does not have size 0, set the MD5 hash
-			if os.path.isfile(self.filePath) and os.stat(self.filePath).st_size > 0:
+			if self.filePath != '' and os.path.isfile(self.filePath) and os.stat(self.filePath).st_size > 0:
 				self.fileHash = self.computeHash(open(self.filePath, 'rb'))
 			else:
 				self.valid = False
@@ -62,11 +65,16 @@ class Track:
 	def convertTime(self, milliseconds):
 		return int(round(int(milliseconds) / 1000.0))
 	
+	# Converts a URL style file name to a UNIX path. Returns '' on error
 	def convertURLtoPath(self, fileURL):
 		if fileURL == '' or fileURL == None:
 			return ''
 		else:
-			return urllib.urlretrieve(fileURL)[0]
+			try:
+				return urllib.urlretrieve(fileURL)[0]
+			except IOError:
+				return ''
+			
 	
 	# computeHash takes a python file object and returns an MD5 checksum value.
 	# Most music files have ID3 tag information at the beginning. Since these are analyzed
