@@ -4,63 +4,69 @@
 import re
 import urllib
 import hashlib # requires python 2.5 or later
-from os import stat	# Used to read the size of song files
+import os
 
-# After construction, the Track class maintains the following self variables with meta information:
-# 	FileHash - MD5 hash checksum of the file contents (required)
-# 	FilePath - The local file path of the track's file (required)
-# 	Time - Total time of the track rounded down to the nearest second (required)
-# 	Title - Track's title, not required.
-# 	hasTitle - set to true if a track title was found
-# 	Artist - Track's artist, not required.
-# 	hasArtist - set to true if an artist was found
-# 	Album - Track's album, not required.
-# 	hasAblum - set to true if an album was found
+'''
+After construction, the Track class maintains the following meta information, extracted from XML tags
+and kept in the self.tags dictionary with corresponding keys. 'required' means the track isn't
+considered for duplicate-checking if not present (making self.valid==False)
+	Name - Track's title, not required.
+	Artist - Track's artist, not required.
+	Album - Track's album, not required.
+	Time - An int of the total time of the track rounded to the nearest second (required)
+It also maintians these self variables:
+	valid
+ 	fileHash - MD5 hash checksum of the file contents (required)
+ 	filePath - The local UNIX file path of the track's file (required)
+'''
 class Track:
-	stringRegex = '<string>(.+)</string>'	# Regular expression to extract XML string values
 	
-	def __init__(self, XMLdata):	# Initialization takes one parameter, the XML track info
-		self.valid = True
-		self.hasArtist = False
-		self.hasTitle = False
-		self.hasAlbum = False
-		# Begin parsing XML track information line by line
-		for line in XMLdata:
-			# Title
-			if re.search('<key>Name</key>', line):
-				titleSearch = re.search(self.stringRegex, line)
-				if titleSearch:		# If a title was found
-					self.Title = titleSearch.group(1)
-					self.hasTitle = True
-			# Arist
-			if re.search('<key>Artist</key>', line):
-				artistSearch = re.search(self.stringRegex, line)
-				if artistSearch:	# If an artist was found
-					self.Artist = artistSearch.group(1)
-					self.hasArtist = True
-			# Album
-			if re.search('<key>Album</key>', line):
-				albumSearch = re.search(self.stringRegex, line)
-				if albumSearch:		# If an album was found
-					self.Album = albumSearch.group(1)
-					self.hasAlbum = True
-			# Total time
-			if re.search('<key>Total Time</key>', line):
-				timeSearch = re.search('<integer>(.+)</integer>', line)
-				if timeSearch:
-					self.Time = int(timeSearch.group(1)) / 1000
-			# File location
-			if re.search('<key>Location</key>', line):
-				locationSearch = re.search(self.stringRegex, line)
-				if locationSearch:
-					# Use urllib to convert from a location URL to a file path
-					self.FilePath = urllib.urlretrieve(locationSearch.group(1))[0]
-					self.FileHash = self.computeHash()	# Set the MD5 hash
-
-		try:	# Test that the track has a time. Else, set it to invalid
-			self.Time	# If not set, this will cause an exception to be thrown
-		except AttributeError:
+	def __init__(self, XMLdata):	# Initialization takes one parameter, the XML track info as a list
+		self.tags = {}
+		self.valid = True	# Potentially set to false by several functions, indicates the track is unfit for matching
+		
+		self.readXML(XMLdata)
+		# Convert the Total Time tag from a string of milliseconds to a rounded int of seconds
+		if 'Total Time' in self.tags:
+			self.tags['Total Time'] = self.convertTime(self.tags['Total Time'])
+		else:	# If it's absent, the Track isn't valid
 			self.valid = False
+
+		# Store a local UNIX file path to the media instead of an HTML location
+		self.filePath = self.convertURLtoPath(self.tags['Location'])
+		if self.valid:
+			# If the file does not have size 0, set the MD5 hash
+			if os.path.isfile(self.filePath) and os.stat(self.filePath).st_size > 0:
+				self.fileHash = self.computeHash(open(self.filePath, 'rb'))
+			else:
+				self.valid = False
+
+
+	# Parse XML track information line by line looking for certain values
+	def readXML(self, XMLdata):
+		for line in XMLdata:
+			for key in ['Name','Artist','Album','Location']:
+				self.extractTagOfKey(key, 'string', line)
+			self.extractTagOfKey('Total Time', 'integer', line)
+	
+	# Given something like ('Artist','string','<string>Modest Mouse</string>), this parses the artist name
+	# and, if found and not blank, stores it in the self.tags dictionary as a string
+	def extractTagOfKey(self, key, XMLtag, line):
+		# If the line actually contains what we're looking for
+		if re.search('<key>'+key+'</key>', line):
+			search = re.search('<'+XMLtag+'>(.+)</'+XMLtag+'>', line)
+			if search:
+				self.tags[key] = search.group(1)
+	
+	# Converts from a string of milliseconds to an int of seconds (rounded)
+	def convertTime(self, milliseconds):
+		return int(round(int(milliseconds) / 1000.0))
+	
+	def convertURLtoPath(self, fileURL):
+		if fileURL == '' or fileURL == None:
+			return ''
+		else:
+			return urllib.urlretrieve(fileURL)[0]
 	
 	# computeHash takes a python file object and returns an MD5 checksum value.
 	# Most music files have ID3 tag information at the beginning. Since these are analyzed
@@ -68,33 +74,24 @@ class Track:
 	#  be seen as a match even if they have different tags.
 	# On success - returns MD5 checksum
 	# On failure (nonexistent or empty file) - sets self.valid to False, returns garbage
-	def computeHash(self):
-		try:
-			fileObject = open(self.FilePath, 'rb')	# Attempt to open the file
-		except:
-			self.valid = False	# If the file doesn't exist, the track is invalid
-			return 0
-		if stat(self.FilePath).st_size == 0:
-			self.valid = False
-			return 0
-
+	def computeHash(self, mediaFile):
 		ID3offset = 40000	# How far to skip to avoid ID3 tags
 		hashSize = 800000	# How many bytes are read for hashing
 		hasher = hashlib.md5()
 		
 		hasherUpdated = False
-		fileObject.seek(ID3offset)	# Skip ahead in the file
-		byte = fileObject.read(1)	# Read a byte
+		mediaFile.seek(ID3offset)	# Skip ahead in the file
+		byte = mediaFile.read(1)	# Read a byte
 		for i in range(hashSize):
 			if byte == "":		# Reaching the end of file will trigger this
 				break;
 			hasher.update(byte)
 			hasherUpdated = True
-			byte = fileObject.read(1)	# read another byte
+			byte = mediaFile.read(1)	# read another byte
 
 		if not hasherUpdated:	# If the file is smaller than ID3offset, hash the whole thing
-			fileObject.seek(0)
-			hasher.update(fileObject.read())
+			mediaFile.seek(0)
+			hasher.update(mediaFile.read())
 		
 		return hasher.digest()
 
