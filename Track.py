@@ -34,6 +34,16 @@ class Track:
 			self.tags['Total Time'] = self.convertTime(self.tags['Total Time'])
 		else:	# If it's absent, the Track isn't valid
 			self.valid = False
+		# Convert rating and play count to ints
+		if 'Rating' in self.tags:
+			# Convert from ratings of 0-100 to 0-5
+			self.tags['Rating'] = int(self.tags['Rating']) / 20
+		else:
+			self.tags['Rating'] = 0
+		if 'Play Count' in self.tags:
+			self.tags['Play Count'] = int(self.tags['Play Count'])
+		else:
+			self.tags['Play Count'] = 0
 
 		if self.valid:
 			# Store a local UNIX file path to the media instead of an HTML location
@@ -50,7 +60,8 @@ class Track:
 		for line in XMLdata:
 			for key in ['Name','Artist','Album','Location']:
 				self.extractTagOfKey(key, 'string', line)
-			self.extractTagOfKey('Total Time', 'integer', line)
+			for key in ['Total Time', 'Rating', 'Play Count']:
+				self.extractTagOfKey(key, 'integer', line)
 	
 	# Given something like ('Artist','string','<string>Modest Mouse</string>), this parses the artist name
 	# and, if found and not blank, stores it in the self.tags dictionary as a string

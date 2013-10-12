@@ -29,30 +29,28 @@ aS'\t\t\t<key>Sample Rate</key><integer>44100</integer>'
 p14
 aS'\t\t\t<key>Comments</key><string>#chr [Efnet] cp</string>'
 p15
-aS'\t\t\t<key>Play Count</key><integer>88</integer>'
-p16
 aS'\t\t\t<key>Play Date</key><integer>3432405739</integer>'
-p17
+p16
 aS'\t\t\t<key>Play Date UTC</key><date>2012-10-07T03:02:19Z</date>'
-p18
+p17
 aS'\t\t\t<key>Skip Count</key><integer>12</integer>'
-p19
+p18
 aS'\t\t\t<key>Skip Date</key><date>2013-03-11T06:50:29Z</date>'
-p20
+p19
 aS'\t\t\t<key>Rating</key><integer>100</integer>'
-p21
+p20
 aS'\t\t\t<key>Album Rating</key><integer>100</integer>'
-p22
+p21
 aS'\t\t\t<key>Album Rating Computed</key><true/>'
-p23
+p22
 aS'\t\t\t<key>Persistent ID</key><string>096B07CC32793212</string>'
-p24
+p23
 aS'\t\t\t<key>Track Type</key><string>File</string>'
-p25
+p24
 aS'\t\t\t<key>Location</key><string>data/01%20Float%20On.mp3</string>'
-p26
+p25
 aS'\t\t\t<key>File Folder Count</key><integer>4</integer>'
-p27
+p26
 aS'\t\t\t<key>Library Folder Count</key><integer>1</integer>'
-p28
+p27
 a.

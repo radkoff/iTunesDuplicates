@@ -20,17 +20,19 @@ class TestTrack(unittest.TestCase):
 	def test_track1(self):
 		track = Track.Track( pickle.load(open('data/sampleTrack1.pkl','r')) )
 		self.assertTrue( track.valid ) 
-		for (key,val) in [('Artist','Modest Mouse'), ('Name','Float On'), ('Album','Float On-(CDS)'), ('Total Time', 210)]:
+		for (key,val) in [('Artist','Modest Mouse'), ('Name','Float On'), ('Album','Float On-(CDS)'), ('Total Time', 210), ('Rating',5), ('Play Count', 88)]:
 			self.assertTrue( key in track.tags )
 			self.assertEqual( track.tags[key], val )
 		self.assertTrue( 'Location' in track.tags )
 	# Missing Album (missing line) and Name (due to incomplete XML tags)
+	# Missing play count and rating in tags, which should report as 0
 	def test_track2(self):
 		track = Track.Track( pickle.load(open('data/sampleTrack2.pkl','r')) )
 		self.assertTrue( track.valid )
 		self.assertTrue( 'Artist' in track.tags )
 		self.assertFalse( 'Album' in track.tags )
 		self.assertFalse( 'Name' in track.tags )
+		self.assertTrue( 'Play Count' in track.tags )
 
 	# Invalid because no Total Time
 	def test_track3(self):
@@ -65,7 +67,6 @@ class TestTrack(unittest.TestCase):
 		track = Track.Track( pickle.load(open('data/sampleTrack9.pkl','r')) )
 		self.assertFalse( track.valid )
 		
-
 	def test_hash(self):
 		a = 1
 
