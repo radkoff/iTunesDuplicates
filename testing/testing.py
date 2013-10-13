@@ -20,7 +20,7 @@ class TestTrack(unittest.TestCase):
 	def test_track1(self):
 		track = Track.Track( pickle.load(open('data/sampleTrack1.pkl','r')) )
 		self.assertTrue( track.valid ) 
-		for (key,val) in [('Artist','Modest Mouse'), ('Name','Float On'), ('Album','Float On-(CDS)'), ('Total Time', 210), ('Rating',5), ('Play Count', 88)]:
+		for (key,val) in [('Artist','Modest Mouse'), ('Name','Float On'), ('Album','Float On-(CDS)'), ('Total Time', 210), ('Rating',5), ('Play Count', 88), ('Date Added', '2006-12-19')]:
 			self.assertTrue( key in track.tags )
 			self.assertEqual( track.tags[key], val )
 		self.assertTrue( 'Location' in track.tags )

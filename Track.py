@@ -15,6 +15,9 @@ considered for duplicate-checking if not present (making self.valid==False)
 	Album - Track's album, not required.
 	Total Time - An int of the total time of the track rounded to the nearest second (required)
 	Location - URL of the media file
+	Rating - int 0-5
+	Play Count - int
+	Date Added - String of the date
 It also maintians these self variables:
 	valid
  	fileHash - MD5 hash checksum of the file contents (required)
@@ -40,10 +43,15 @@ class Track:
 			self.tags['Rating'] = int(self.tags['Rating']) / 20
 		else:
 			self.tags['Rating'] = 0
+		# If there is no play count, set it to 0
 		if 'Play Count' in self.tags:
 			self.tags['Play Count'] = int(self.tags['Play Count'])
 		else:
 			self.tags['Play Count'] = 0
+		# Trim date added from 2006-12-19T21:36:14Z to 2006-12-19
+		if 'Date Added' in self.tags:
+			date = self.tags['Date Added']
+			self.tags['Date Added'] = date[:date.find('T')]
 
 		if self.valid:
 			# Store a local UNIX file path to the media instead of an HTML location
@@ -62,6 +70,7 @@ class Track:
 				self.extractTagOfKey(key, 'string', line)
 			for key in ['Total Time', 'Rating', 'Play Count']:
 				self.extractTagOfKey(key, 'integer', line)
+			self.extractTagOfKey('Date Added', 'date', line)
 	
 	# Given something like ('Artist','string','<string>Modest Mouse</string>), this parses the artist name
 	# and, if found and not blank, stores it in the self.tags dictionary as a string
