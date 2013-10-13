@@ -42,31 +42,29 @@ def compareTimes(timeA, timeB):
 # Function to compare two Track objects.
 # Returns a number from 0-100 representing an estimated similarity metric of the two.
 def compareTracks(trackA, trackB):
-	if trackA.FileHash == trackB.FileHash:	# If they have equal hashes, they are the same
+	if trackA.fileHash == trackB.fileHash:	# If they have equal hashes, they are the same
 		return 100
-	# The indices of tagsMatching refer to whether titles, artists, albums, and times match (respectively)
-	tagsMatching = [ False, False, False, compareTimes(trackA.Time, trackB.Time) ]
-	if trackA.hasTitle and trackB.hasTitle and compareStrings(trackA.Title, trackB.Title):
-		tagsMatching[0] = True
-	if trackA.hasArtist and trackB.hasArtist and compareStrings(trackA.Artist, trackB.Artist):
-		tagsMatching[1] = True
-	if trackA.hasAlbum and trackB.hasAlbum and compareStrings(trackA.Album, trackB.Album):
-		tagsMatching[2] = True
-	numTagsMatching = sum(tagsMatching)	# How many of the 4 pieces of information match
+	# A list of tags that match (confined to the set {Name, Artist, Album, Total Time}
+	matchingTags = []
+	if compareTimes(trackA.tags['Total Time'], trackB.tags['Total Time']):
+		matchingTags.append( 'Total Time' )
+	for key in ['Name', 'Artist', 'Album']:
+		if key in trackA.tags and key in trackB.tags and compareStrings(trackA.tags[key], trackB.tags[key]):
+			matchingTags.append( key )
 
-	if numTagsMatching == 4:	# All tags match, they are confidently duplicates
+	if len(matchingTags) == 4:	# All tags match, they are confidently duplicates
 		return 95
-	elif numTagsMatching == 3:	# 3/4 tags match. Confidently duplicates, unless the titles are what differ
-		if not tagsMatching[0]:
-			return 60
+	elif len(matchingTags) == 3:	# 3/4 tags match. Confidently duplicates, unless the titles are what differ
+		if 'Name' not in matchingTags:
+			return 40
 		else:
 			return 90
-	elif numTagsMatching == 2:	# If only 2 tags match
-		if tagsMatching[0] and (tagsMatching[1] or tagsMatching[2]):
+	elif len(matchingTags) == 2:	# If only 2 tags match
+		if 'Name' in matchingTags and ('Artist' in matchingTags or 'Album' in matchingTags):
 			return 75 # the only combinations with merit are title+artist and title+album
 		else:
 			return 25
-	elif numTagsMatching == 1:	# 1 tags matches, almost certainly not duplicates
+	elif len(matchingTags) == 1:	# 1 tags matches, almost certainly not duplicates
 		return 3
 	else:
 		return 0
@@ -90,12 +88,14 @@ for line in XMLdata:
 			if not newTrack.valid:		# If there was a problem with the Track
 				trackInfo = []
 				continue
+#			if 'Name' in newTrack.tags:
+#				print newTrack.tags['Name']
 			for someTrack in tracks:	# Compare the new Track to all previous ones
 				score = compareTracks(newTrack, someTrack)
 				if score >= cutoff:	# If the confidence estimate is above the cutoff, print
 					print "Possible duplicates, with",(str(score) + "%"),"confidence:"
-					print newTrack.FilePath
-					print someTrack.FilePath
+					print newTrack.filePath
+					print someTrack.filePath
 					print
 			tracks.append(newTrack)		# Add the new Track to the tracks list
 			trackInfo = []			# Clear track info

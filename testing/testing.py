@@ -66,9 +66,22 @@ class TestTrack(unittest.TestCase):
 	def test_track9(self):
 		track = Track.Track( pickle.load(open('data/sampleTrack9.pkl','r')) )
 		self.assertFalse( track.valid )
-		
-	def test_hash(self):
-		a = 1
+	# A tagless file will produce the same hash as if tags are present
+	def test_taglessHash(self):
+		sampleMP3TaglessHash = self.validTrack.computeHash('data/sampleMP3Tagless.mp3')
+		self.assertEqual( self.validTrack.fileHash, sampleMP3TaglessHash )
+	# The same file with different tags produce equal hashes
+	def test_equalHash(self):
+		sampleMP3DifferentHash = self.validTrack.computeHash('data/sampleMP3Different.mp3')
+		self.assertEqual( self.validTrack.fileHash, sampleMP3DifferentHash )
+	# Two different media files produce different hashes
+	def test_unequalHash(self):
+		differentFileHash = self.validTrack.computeHash('data/otherSampleMP3.mp3')
+		self.assertTrue( self.validTrack.fileHash != differentFileHash )
+	# An empty file produces a different hash than the sample one
+#	def test_emptyFileHash(self):
+#		emptyHash = self.validTrack.computeHash('data/emptyfile')
+#		self.assertTrue( self.validTrack.fileHash != emptyFileHash )
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestTrack)

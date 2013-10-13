@@ -3,8 +3,16 @@
 
 import re
 import urllib
+import urlparse
+import shutil
 import hashlib # requires python 2.5 or later
 import os
+import tempfile
+try:
+	import mutagen # Tag reading/editting module
+except ImportError:
+	print 'Mutagen required ( http://code.google.com/p/mutagen/ )
+	exit()
 
 '''
 After construction, the Track class maintains the following meta information, extracted from XML tags
@@ -58,7 +66,7 @@ class Track:
 			self.filePath = self.convertURLtoPath(self.tags['Location'])
 			# If the file does not have size 0, set the MD5 hash
 			if self.filePath != '' and os.path.isfile(self.filePath) and os.stat(self.filePath).st_size > 0:
-				self.fileHash = self.computeHash(open(self.filePath, 'rb'))
+				self.fileHash = self.computeHash(self.filePath)
 			else:
 				self.valid = False
 
@@ -91,24 +99,34 @@ class Track:
 			return ''
 		else:
 			try:
-				return urllib.urlretrieve(fileURL)[0]
+				return urllib.url2pathname(urlparse.urlparse(fileURL).path)
 			except IOError:
 				return ''
-			
 	
-	# computeHash takes a python file object and returns an MD5 checksum value.
-	# Most music files have ID3 tag information at the beginning. Since these are analyzed
-	#  separately, hashing begins part way into the file so that two identical songs will
+	# Return a hash of the music info within mediaFileName
+	# Most music files have tag information at the beginning (such as ID3). Thus this method 
+	# creates a temporary copy and removes the tags, so that two identical songs will
 	#  be seen as a match even if they have different tags.
-	# On success - returns MD5 checksum
-	# On failure (nonexistent or empty file) - sets self.valid to False, returns garbage
-	def computeHash(self, mediaFile):
-		ID3offset = 40000	# How far to skip to avoid ID3 tags
-		hashSize = 800000	# How many bytes are read for hashing
+	def computeHash(self, mediaFileName):
+		fileExtension = os.path.splitext(mediaFileName)[1]
+		tempname = tempfile.NamedTemporaryFile().name + fileExtension
+		shutil.copy(mediaFileName, tempname)
+		
+		tags = mutagen.File(tempname)
+		if not tags:
+			print mediaFileName
+		else:
+			tags.delete()
+		fingerPrint = self.MD5ofFile( open(tempname, 'rb') )
+		os.remove(tempname)
+		return fingerPrint
+	
+	# MD5ofFile takes a python file object and returns an MD5 checksum value.
+	def MD5ofFile(self, mediaFile):
+		hashSize = 10000	# Max on how many bytes are read for hashing
 		hasher = hashlib.md5()
 		
 		hasherUpdated = False
-		mediaFile.seek(ID3offset)	# Skip ahead in the file
 		byte = mediaFile.read(1)	# Read a byte
 		for i in range(hashSize):
 			if byte == "":		# Reaching the end of file will trigger this
