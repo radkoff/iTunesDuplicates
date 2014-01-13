@@ -11,7 +11,7 @@ import tempfile
 try:
 	import mutagen # Tag reading/editting module
 except ImportError:
-	print 'Mutagen required ( http://code.google.com/p/mutagen/ )
+	print 'Mutagen required ( http://code.google.com/p/mutagen/ )'
 	exit()
 
 '''
